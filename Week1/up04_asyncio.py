@@ -6,18 +6,18 @@ import threading
 
 async def update_cup_number(customer_name):
     print(f"{ctime()} [PID {os.getpid()} | {threading.current_thread().name}]: "
-          f"LCD : processing for Customer {customer_name}.")
+          f"LCD: processing for customer {customer_name}.")
     await asyncio.sleep(1.0)
     print(f"{ctime()} [PID {os.getpid()} | {threading.current_thread().name}]: "
-          f"LCD : Done for Customer {customer_name}.")
+          f"LCD: Done for customer {customer_name}.")
     pass
 
 async def make_coffee(customer_name):
     print(f"{ctime()} [PID {os.getpid()} | {threading.current_thread().name}]: "
-          f"Making coffee for Customer {customer_name}.")
+          f"Making coffee for {customer_name}.")
     await asyncio.sleep(1.0)
     print(f"{ctime()} [PID {os.getpid()} | {threading.current_thread().name}]: "
-          f"Coffee Ready for Customer {customer_name}.")
+          f"Coffee Ready for {customer_name}.")
     await update_cup_number(customer_name)
 
 
