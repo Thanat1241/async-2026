@@ -7,7 +7,11 @@ def make_coffee(customer_name):
     pass
 
 def main():
-    pass
+    queue = ["Alice", "Bob", "Charlie", "David", "Eve"]
+    main_pid = os.getpid()
+    main_tid = threading.current_thread().native_id
+
+    print (f"{ctime()} | [Main PID: {main_pid}] [Main TID: {main_tid}] จำลองระบบทำกาแฟแบบซิงโครนัส")    
 
 if __name__ == "__main__":
     main()
