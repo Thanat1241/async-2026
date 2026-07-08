@@ -4,38 +4,40 @@
 import asyncio
 from time import ctime
 
-async def courier_delivery(package_id):
 
-    print(f"{ctime()} Courier started delivering {package_id}...")
+# 1: Coroutine จำลองการส่งพัสดุ
+async def delivery_task(package_id, duration):
     try:
-        await asyncio.sleep(10)  # จำลองงานส่งของที่ใช้เวลานานมาก
-        return f"{package_id} delivered!"
+        print(f"{ctime()} Courier started delivering {package_id}...")
+        await asyncio.sleep(duration)  # จำลองเวลาเดินทางส่งของ
+        return f"Package {package_id} Delivered!"
     except asyncio.CancelledError:
-        # Injected exactly at the current await checkpoint when .cancel() is called
+        # ถูก inject เมื่อ main สั่ง .cancel() ที่จุด await
         print(f"{ctime()} Delivery Canceled! Returning package to warehouse.")
-        raise  # Re-raise the exception to propagate cancellation
- 
-        
+        raise  # re-raise เพื่อให้สถานะ task เป็น cancelled จริง
+
 
 async def main():
+    # 2: สร้าง Task ชื่อ "Express-Courier" (P001, 5 วินาที)
+    task = asyncio.create_task(
+        delivery_task(package_id="P001", duration=5.0),
+        name="Express-Courier"
+    )
 
-    task = asyncio.create_task(courier_delivery("P001"), name="Express-Courier")
- 
-    # ให้ไรเดอร์ทำงานไปก่อน 2 วิ แล้วมาเช็คสถานะ
-    await asyncio.sleep(2)
+    # 3: ผ่านไป 2 วินาที ตรวจสอบสถานะด้วย .done() และพิมพ์ชื่อด้วย .get_name()
+    await asyncio.sleep(2.0)
     print(f"{ctime()} Checking task '{task.get_name()}'. Is it done? {task.done()}")
- 
-    # ตัดสินใจว่าใช้เวลานานเกินไป สั่งยกเลิก
-    print(f"{ctime()} Taking too long! Canceling the task...")
-    task.cancel()
- 
-    try:
-        await task  # รอให้ CancelledError วิ่งผ่านและ task จบสถานะจริง ๆ
-    except asyncio.CancelledError:
-        pass
- 
+
+    # 4: ยังไม่เสร็จ -> ยกเลิกทันทีด้วย .cancel()
+    if not task.done():
+        print(f"{ctime()} Taking too long! Canceling the task...")
+        task.cancel()
+
+    # เปิดช่องให้ event loop ไปรัน except block ของคูรูทีน
+    await asyncio.sleep(0.1)
+
+    # 5: ตรวจสอบจากภายนอกว่า .cancelled() เป็น True
     print(f"{ctime()} Final verify: Is task officially canceled? {task.cancelled()}")
- 
 
 
 if __name__ == "__main__":
