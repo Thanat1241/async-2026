@@ -1,31 +1,36 @@
 # mock_stock_api.py
-from fastapi import FastAPI
 import asyncio
+from time import ctime
 
-app = FastAPI(title="Asyncio Week 3 Mock Stock API")
 
-@app.get("/price/{server_name}")
-async def get_stock_price(server_name: str):
-    """ API จำลองราคาหุ้น โดยแต่ละสาขาจะมีความหน่วง (Latency) ไม่เท่ากัน """
-    name_lower = server_name.lower()
-    
-    if name_lower == "alpha":
-        await asyncio.sleep(3.0)  # ช้าที่สุด
-        price = 152.50
-    elif name_lower == "beta":
-        await asyncio.sleep(0.8)  # เร็วที่สุด!
-        price = 149.80
-    elif name_lower == "gamma":
-        await asyncio.sleep(1.5)  # ปานกลาง
-        price = 150.20
-    else:
-        await asyncio.sleep(0.1)
-        price = 100.00
-        
-    return {
-        "server": server_name,
-        "price_usd": price,
-        "status": "success"
+# 1: Coroutine จำลองดึงราคาหุ้น ด้วย asyncio.sleep(delay)
+async def fetch_stock_price(server_name, delay):
+    await asyncio.sleep(delay)  # จำลองความหน่วงอินเทอร์เน็ตของแต่ละสาขา
+    return f"[{server_name}] Price: 150 USD"
+
+
+async def main():
+    # 2: แตก Task 3 ตัวพร้อมกันใน Event Loop
+    tasks = {
+        asyncio.create_task(fetch_stock_price("Alpha", 3.0)),  # ช้าสุด
+        asyncio.create_task(fetch_stock_price("Beta", 0.8)),   # เร็วสุด
+        asyncio.create_task(fetch_stock_price("Gamma", 1.5)),  # ปานกลาง
     }
+
+    # 3: asyncio.wait + FIRST_COMPLETED -> ดีดหลุดจากการรอทันทีที่ตัวแรกเสร็จ
+    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+    # 4: แสดงผลลัพธ์ของเซิร์ฟเวอร์ที่ชนะการแข่งขัน
+    for winner in done:
+        print(f"{ctime()} Winner Result: {winner.result()}")
+
+    # 5: วนลูปเคลียร์ระบบ ยกเลิกงาน pending ที่เหลือ ป้องกัน Memory Leak
+    print(f"{ctime()} Cleaning up {len(pending)} pending tasks...")
+    for ongoing_task in pending:
+        ongoing_task.cancel()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 # pip install fastapi uvicorn httpx
 # วิธีรันเซิร์ฟเวอร์: uvicorn stock_api:app --reload --port 8088

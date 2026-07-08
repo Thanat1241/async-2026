@@ -3,7 +3,7 @@ import asyncio
 from time import ctime
 
 def alert_manager(finished_task):
-    # 
+    # Callback function automatically accept the completed task object as first argument
     print(f"{ctime()} Callback Triggered! Task output fetched: {finished_task.result()}")
 
 async def download_file():
@@ -13,9 +13,9 @@ async def download_file():
 
 async def main():
     task = asyncio.create_task(download_file())
-    # 
+    # Register a callback function (Do not add parenthesis '()' when passing function reference)
     task.add_done_callback(alert_manager)
     
-    await task # 
+    await task # Wait for the task to complete
 
 asyncio.run(main())
