@@ -94,7 +94,7 @@ Instantly reset the status of all 4 lights back to `OFF` for the specified stude
   * **Body Example:**
     ```json
     {
-      "message": "รีเซ็ตไฟทุกดวงของนักเรียน 65010001 เป็น OFF เรียบร้อยแล้ว"
+      "message": "รีเซ็ตไฟทุกดวงของนักเรียน 6720301003 เป็น OFF เรียบร้อยแล้ว"
     }
     ```
 
