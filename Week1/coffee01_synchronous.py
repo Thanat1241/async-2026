@@ -1,5 +1,5 @@
 from time import sleep, ctime, time
-import 
+
 
 
 # ฟังก์ชันจำลองการทำกาแฟให้ลูกค้า 1 คน
